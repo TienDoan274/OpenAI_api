@@ -4,59 +4,129 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GPTapi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+        }
+
+        main {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            margin-top: 50px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            margin-top: 20px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button[type="submit"] {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #chat-log {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .message {
+            margin-bottom: 10px;
+        }
+
+        .message--sent {
+            text-align: right;
+        }
+
+        .message--received {
+            text-align: left;
+        }
+
+        .message__text {
+            background-color: #f2f2f2;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
     <main>
-        <h1>GPTien </h1>
-            <form action="">
-                <input type="text" name="message" id="message">
-                <button type="submit"></button>
-            </form>
-            <div id="chat-log">
-
-            </div>
+        <h1>GPTien</h1>
+        <form action="">
+            <input type="text" name="message" id="message" placeholder="Type your message...">
+            <button type="submit">Send</button>
+        </form>
+        <div id="chat-log"></div>
     </main>
-    <script >
-        let messages=[]
-        const chatlog=document.getElementById("chat-log");
-        const message=document.getElementById("message");
-        const form=document.querySelector('form');
-        form.addEventListener('submit',(e)=>{
-            e.preventDefault(); 
-            const messageText=message.value;
-            const newMessage={"role":"user","content":`${messageText}`}
-            messages.push(newMessage)
-            message.value='';
-            const messageElement=document.createElement('div');
+    <script>
+        let messages = [];
+        const chatlog = document.getElementById("chat-log");
+        const message = document.getElementById("message");
+        const form = document.querySelector('form');
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const messageText = message.value;
+            const newMessage = { "role": "user", "content": `${messageText}` };
+            messages.push(newMessage);
+            message.value = '';
+            const messageElement = document.createElement('div');
             messageElement.classList.add('message');
             messageElement.classList.add('message--sent');
-            messageElement.innerHTML=`
-                <div class="message_text">Bạn hỏi:${messageText}</div>    
+            messageElement.innerHTML = `
+                <div class="message__text">You: ${messageText}</div>
             `;
             chatlog.appendChild(messageElement);
-            chatlog.scrollTop=chatlog.scrollHeight;
-            fetch('http://localhost:3000',{
-                method:'POST',
-                headers:{
-                    'Content-Type':'application/json'
+            chatlog.scrollTop = chatlog.scrollHeight;
+            fetch('http://localhost:3000', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
                 },
-                body:JSON.stringify({
+                body: JSON.stringify({
                     messages
                 })
             })
-            .then(res=>res.json())
-            .then(data=>{
-                let newAssistantMessage={"role":"assistant","content":`${data.completion}`}
-                messages.push(newAssistantMessage)
-                const messageElement=document.createElement('div');
-                messageElement.classList.add('message');
-                messageElement.classList.add('message--received');
-                messageElement.innerHTML=`
-                    <div class="message__text">gpt:${data.completion}</div>
-                `;
-                chatlog.appendChild(messageElement);
-                chatlog.scrollTop=chatlog.scrollHeight;
-            })
+                .then(res => res.json())
+                .then(data => {
+                    let newAssistantMessage = { "role": "assistant", "content": `${data.completion}` };
+                    messages.push(newAssistantMessage);
+                    const messageElement = document.createElement('div');
+                    messageElement.classList.add('message');
+                    messageElement.classList.add('message--received');
+                    messageElement.innerHTML = `
+                        <div class="message__text">GPT: ${data.completion}</div>
+                    `;
+                    chatlog.appendChild(messageElement);
+                    chatlog.scrollTop = chatlog.scrollHeight;
+                })
         })
     </script>
 </body>
